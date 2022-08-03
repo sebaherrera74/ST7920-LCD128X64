@@ -79,6 +79,7 @@ void st7920_lcd128x64_init(void){
 	delay(1);
 	st7920_lcd128x64_sendcmd (LCD_HOME );
 	delay(1);
+	st7920_lcd128x64_setGfxMode(1);
 
 
 
@@ -88,9 +89,9 @@ void st7920_lcd128x64_sendcmd (uint8_t cmd)
 {
 
 	gpioWrite(GPIO0,HIGH);
-	write_spi_XXh(LPC_SSP,0xF8+(0<<1));  // send the SYNC + RS(0));
+	write_spi_XXh(LPC_SSP,0xF8);  // send the SYNC + RS(0));
 	write_spi_XXh(LPC_SSP,cmd & 0xF0);   // send the higher nibble first
-	write_spi_XXh(LPC_SSP,(cmd << 4)&0xF0);// send the lower nibble
+	write_spi_XXh(LPC_SSP,(cmd << 4));// send the lower nibble
 	gpioWrite(GPIO0,LOW);
 
 
@@ -100,9 +101,9 @@ void st7920_lcd128x64_sendData (uint8_t cmd)
 {
 
 	gpioWrite(GPIO0,HIGH);
-	write_spi_XXh(LPC_SSP,0xF8+(1<<1));  // send the SYNC + RS(1));
+	write_spi_XXh(LPC_SSP,0xFA);  // send the SYNC + RS(1));
 	write_spi_XXh(LPC_SSP,cmd & 0xF0);  // send the higher nibble first
-	write_spi_XXh(LPC_SSP,(cmd << 4)&0xf0);// send the lower nibble
+	write_spi_XXh(LPC_SSP,(cmd << 4));// send the lower nibble
 	gpioWrite(GPIO0,LOW);
 
 }
@@ -125,6 +126,18 @@ void st7920_lcd128x64_printTxt(uint8_t pos, char *str)
 		st7920_lcd128x64_sendData(*str++);
 	}
 }
+void st7920_lcd128x64_printTxt2(uint8_t pos, uint16_t *signs)
+{
+	st7920_lcd128x64_sendcmd(LCD_BASIC);
+	st7920_lcd128x64_sendcmd(pos);
+	while(*signs) {
+		st7920_lcd128x64_sendData(*signs>>8);
+		st7920_lcd128x64_sendData(*signs&0xFF);
+		signs++;
+	}
+}
+
+
 
 void st7920_lcd128x64_SendString(int row, int col, char *string)
 {
@@ -167,10 +180,42 @@ void st7920_lcd128x64_sleep(bool_t mode)
 
 void st7920_lcd128x64_displayclear(void){
 	st7920_lcd128x64_sendcmd (LCD_CLS );
+}
 
+void st7920_lcd128x64_setGfxMode(bool_t mode)
+{
+  if(mode) {
+	  st7920_lcd128x64_sendcmd(LCD_EXTEND);
+	  st7920_lcd128x64_sendcmd(LCD_GFXMODE);
+  } else {
+	  st7920_lcd128x64_sendcmd(LCD_EXTEND);
+	  st7920_lcd128x64_sendcmd(LCD_TXTMODE);
+  }
+}
+
+void st7920_lcd128x64_ReadRam(void){
+	gpioWrite(GPIO0,HIGH);
+	write_spi_XXh(LPC_SSP,0xFE);  // send the SYNC + RS(1) + RW(1));
+	write_spi_XXh(LPC_SSP, 0X00 & 0xF0);   // send the higher nibble first
+	write_spi_XXh(LPC_SSP,0X01);// send the lower nibble
+	gpioWrite(GPIO0,LOW);
 
 }
 
+/*void setFont(const uint8_t* font)
+{
+  cfont.font = font;
+  cfont.xSize = fontbyte(0);
+  cfont.ySize = fontbyte(1);
+  cfont.firstCh = fontbyte(2);
+  cfont.lastCh  = fontbyte(3);
+  cfont.minDigitWd = 0;
+  cfont.minCharWd = 0;
+  isNumberFun = &isNumber;
+  spacing = 1;
+  cr = 0;
+  invertCh = 0;
+}*/
 
 /*=====[Implementations of interrupt functions]==============================*/
 

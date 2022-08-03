@@ -52,22 +52,6 @@ extern "C" {
 #define SCR_WD  128
 #define SCR_HT  64
 
-
-
-
-
-
-
-typedef struct {
-	gpioMap_t RS;          //Habilita o desabhilita
-
-} st7920_lcd128x64_t;
-
-
-/*=====[Public function-like macros]=========================================*/
-st7920_lcd128x64_t st7920_lcd128x64;
-
-
 /*=====[Definitions of public data types]====================================*/
 
 /*=====[Prototypes (declarations) of public functions]=======================*/
@@ -77,9 +61,12 @@ void st7920_lcd128x64_sendcmd (uint8_t cmd);
 void st7920_lcd128x64_sendData (uint8_t cmd);
 void st7920_lcd128x64_drawPixel(uint8_t x, uint8_t y, uint8_t col);
 void st7920_lcd128x64_printTxt(uint8_t pos, char *str);
+void st7920_lcd128x64_printTxt2(uint8_t pos, uint16_t *signs);
 void st7920_lcd128x64_SendString(int row, int col, char* string);
 void st7920_lcd128x64_sleep(bool_t mode);
 void st7920_lcd128x64_displayclear(void);
+void st7920_lcd128x64_setGfxMode(bool_t mode);
+void st7920_lcd128x64_ReadRam(void);
 
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
